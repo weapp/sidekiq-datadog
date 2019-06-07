@@ -59,12 +59,11 @@ module Sidekiq
           msec = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC, :millisecond) - clock
           tags = build_tags(worker, job, queue, error)
 
-          @statsd.increment @metric_name, tags: tags
-          @statsd.timing "#{@metric_name}.time", msec, tags: tags
+          @statsd.histogram "#{@metric_name}.time", msec, tags: tags
 
           if job['enqueued_at'] # rubocop:disable Style/GuardClause
             queued_ms = ((start - Time.at(job['enqueued_at'])) * 1000).round
-            @statsd.timing "#{@metric_name}.queued_time", queued_ms, tags: tags
+            @statsd.histogram "#{@metric_name}.queued_time", queued_ms, tags: tags
           end
         end
 
